@@ -7,6 +7,10 @@ fn model_matrix(data: List) -> Result<Robj> {
     let mut processed_columns: Vec<Array2<f64>> = Vec::new();
     let mut column_names: Vec<String> = Vec::new();
 
+    // Add intercept column
+    processed_columns.push(Array2::ones((nrow, 1)));
+    column_names.push("intercept".to_string());
+
     for (col_name, column) in data.iter() {
         match column.rtype() {
             Rtype::Integers => {
