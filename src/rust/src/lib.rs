@@ -15,7 +15,8 @@ fn model_matrix(data: List) -> Result<Robj> {
         let (processed_column, mut new_column_names) = match column.rtype() {
             Rtype::Integers => process_integer_column(&column, col_name, nrow),
             Rtype::Doubles => process_double_column(&column, col_name, nrow),
-            Rtype::Strings | Rtype::Logicals => process_string_logical_column(&column, col_name, nrow),
+            Rtype::Strings => process_string_column(&column, col_name, nrow),
+            Rtype::Logicals => process_logical_column(&column, col_name, nrow),
             _ => return Err(Error::Other(format!("Unsupported column type: {:?}", column.rtype()))),
         };
 
@@ -88,7 +89,7 @@ fn process_double_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<
     (float_col, vec![col_name.to_string()])
 }
 
-fn process_string_logical_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
+fn process_string_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
     let str_col: Vec<String> = column.as_str_vector().unwrap().into_iter().map(|s| s.to_string()).collect();
     let mut levels: Vec<String> = str_col.clone();
     levels.sort();
@@ -108,6 +109,15 @@ fn process_string_logical_column(column: &Robj, col_name: &str, nrow: usize) -> 
         .collect();
 
     (dummy_cols, column_names)
+}
+
+fn process_logical_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
+    let bool_col: Vec<Rbool> = column.as_logical_vector().unwrap();
+    let float_col: Array2<f64> = Array2::from_shape_vec(
+        (nrow, 1),
+        bool_col.into_iter().map(|x| if x.is_true() { 1.0 } else { 0.0 }).collect()
+    ).unwrap();
+    (float_col, vec![col_name.to_string()])
 }
 
 // Generate exports
