@@ -1,3 +1,29 @@
+#' Modern model matrices
+#'
+#' @description
+#' `mdl::mtrx()` (read: "model matrix") implements an opinionated and performant
+#' reimagining of model matrices. It takes in a formula and data frame,
+#' like `model.frame()`, and outputs a numeric matrix of predictor values,
+#' like `model.matrix()`.
+#'
+#' @param formula A formula. Cannot contain inlined functions like `-`or `*`.
+#' @param data A data frame.
+#'
+#' @section Comparison to Base R:
+#'
+#' Compared to `model.frame(model.matrix())`, `mdl::mtrx()`:
+#'
+#' * Names its intercept `intercept` rather than `(Intercept)`.
+#' * Does not accept formulae with inlined functions (like `-` or `*`).
+#' * Names dummy variables created from characters and factors as `colname_level` rather than `colnamelevel`.
+#' * Names dummy variables create from logicals as `colname` rather than `colnameTRUE`.
+#' * Never drops rows (and thus doesn't accept an `na.action`).
+#' * Assumes that factors levels are encoded as they're intended (i.e. `drop.unused.levels` and `xlev` are not accepted).
+#'
+#' @examples
+#' mdl::mtrx(mpg ~ ., mtcars)
+#'
+#' @export
 mtrx <- function(formula, data) {
   if (!is_formula(formula, scoped = TRUE)) {
     cli_abort(
