@@ -10,10 +10,34 @@ fn model_matrix(data: List) -> Result<Robj> {
     for (col_name, column) in data.iter() {
         match column.rtype() {
             Rtype::Integers => {
-                let int_col: Vec<i32> = column.as_integer_vector().unwrap();
-                let float_col: Array2<f64> = Array2::from_shape_vec((nrow, 1), int_col.into_iter().map(|x| x as f64).collect()).unwrap();
-                processed_columns.push(float_col);
-                column_names.push(col_name.to_string());
+                if column.inherits("factor") {
+                    // Handle factor
+                    let int_col: Vec<i32> = column.as_integer_vector().unwrap();
+                    let levels: Vec<String> = column.levels().unwrap().map(|s| s.to_string()).collect();
+                    let mut dummy_cols = Array2::<f64>::zeros((nrow, levels.len() - 1));
+                    
+                    for (i, &val) in int_col.iter().enumerate() {
+                        if val > 0 && val <= levels.len() as i32 {
+                            let level_index = (val - 1) as usize;
+                            if level_index < dummy_cols.ncols() {
+                                dummy_cols[[i, level_index]] = 1.0;
+                            }
+                        }
+                    }
+                    
+                    processed_columns.push(dummy_cols);
+                    
+                    // Generate names for dummy columns
+                    for level in levels.iter().skip(1) {
+                        column_names.push(format!("{}_{}", col_name, level));
+                    }
+                } else {
+                    // Handle regular integer column
+                    let int_col: Vec<i32> = column.as_integer_vector().unwrap();
+                    let float_col: Array2<f64> = Array2::from_shape_vec((nrow, 1), int_col.into_iter().map(|x| x as f64).collect()).unwrap();
+                    processed_columns.push(float_col);
+                    column_names.push(col_name.to_string());
+                }
             },
             Rtype::Doubles => {
                 let float_col: Array2<f64> = Array2::from_shape_vec((nrow, 1), column.as_real_vector().unwrap()).unwrap();
