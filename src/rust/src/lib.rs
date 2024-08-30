@@ -93,16 +93,17 @@ fn process_string_logical_column(column: &Robj, col_name: &str, nrow: usize) -> 
     let mut levels: Vec<String> = str_col.clone();
     levels.sort();
     levels.dedup();
-    levels.pop(); // Remove the last level to avoid perfect multicollinearity
 
-    let mut dummy_cols = Array2::<f64>::zeros((nrow, levels.len()));
+    let mut dummy_cols = Array2::<f64>::zeros((nrow, levels.len() - 1));
     for (i, val) in str_col.iter().enumerate() {
         if let Some(pos) = levels.iter().position(|x| x == val) {
-            dummy_cols[[i, pos]] = 1.0;
+            if pos > 0 {  // Skip the first level (reference level)
+                dummy_cols[[i, pos - 1]] = 1.0;
+            }
         }
     }
 
-    let column_names: Vec<String> = levels.iter()
+    let column_names: Vec<String> = levels.iter().skip(1)
         .map(|level| format!("{}_{}", col_name, level))
         .collect();
 
