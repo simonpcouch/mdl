@@ -11,8 +11,10 @@ fn model_matrix(data: List) -> Result<Robj> {
     processed_columns.push(Array2::ones((nrow, 1)));
     column_names.push("intercept".to_string());
 
+    // Iterate through columns
     for (col_name, column) in data.iter() {
         let (processed_column, mut new_column_names) = match column.rtype() {
+            // Note that factors match this first condition
             Rtype::Integers => process_integer_column(&column, col_name, nrow),
             Rtype::Doubles => process_double_column(&column, col_name, nrow),
             Rtype::Strings => process_string_column(&column, col_name, nrow),
@@ -24,7 +26,8 @@ fn model_matrix(data: List) -> Result<Robj> {
         column_names.append(&mut new_column_names);
     }
 
-    // Combine all processed columns
+    // Combine all processed columns.
+    // Note that entries in processed_columns may have more than one column.
     let ncol = processed_columns.iter().map(|arr| arr.ncols()).sum();
     let mut result = Array2::<f64>::zeros((nrow, ncol));
     let mut col_offset = 0;
@@ -34,6 +37,8 @@ fn model_matrix(data: List) -> Result<Robj> {
         col_offset += n;
     }
 
+    // Convert from Array2...
+    // TODO: I think the remainder of this function likely could be simpler.
     let rarray = RArray::new_matrix(
         result.nrows(),
         result.ncols(),
@@ -46,7 +51,7 @@ fn model_matrix(data: List) -> Result<Robj> {
     // Create dimnames list
     let row_names: Vec<String> = (1..=result.nrows()).map(|i| i.to_string()).collect();
     let dimnames = List::from_values(&[row_names, column_names.clone()]);
-    
+
     // Set dimnames attribute
     robj.set_attrib("dimnames", dimnames)?;
 
