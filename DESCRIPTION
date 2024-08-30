@@ -4,21 +4,21 @@ Version: 0.0.0.9000
 Authors@R: c(
     person("Simon", "Couch", , "simon.couch@posit.co", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5676-5107")),
-    person(given = "Posit Software, PBC", role = c("cph", "fnd"))
+    person("Posit Software, PBC", role = c("cph", "fnd"))
   )
-Description: An opinionated and performant reimagining of model matrices using
-    Rust.
+Description: An opinionated and performant reimagining of model matrices
+    using Rust.
 License: MIT + file LICENSE
+URL: https://github.com/simonpcouch/mdl
+BugReports: https://github.com/simonpcouch/mdl/issues
+Imports: 
+    cli,
+    rlang
 Suggests: 
     testthat (>= 3.0.0)
+Config/rextendr/version: 0.3.1.9000
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-URL: https://github.com/simonpcouch/mdl
-BugReports: https://github.com/simonpcouch/mdl/issues
-Config/rextendr/version: 0.3.1.9000
 SystemRequirements: Cargo (Rust's package manager), rustc
-Imports: 
-    cli,
-    rlang
