@@ -20,37 +20,47 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/mdl)](https://CRAN.R-project.org/package=mdl)
 <!-- badges: end -->
 
-The goal of mdl is to ...
+mdl implements an opinionated and performant reimagining of model matrices. The package supplies one function, `mdl::mtrx()` (read: "model matrix"), that takes in a formula and data frame and outputs a numeric matrix. Compared to its base R friend, `model.matrix()`, it's really, really fast.
+
+**This package is highly experimental. Interpret results with caution!**
 
 ## Installation
 
 You can install the development version of mdl like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("mdl")
+pak::pak("simonpcouch/mdl")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+The output of `mdl::mtrx()` looks a lot like that from `model.matrix()`:
 
-```{r example}
-library(mdl)
-## basic example code
+```{r}
+# convert to factor to demonstrate dummy variable creations
+mtcars$cyl <- as.factor(mtcars$cyl)
+
+head(
+  mdl::mtrx(mpg ~ ., mtcars)
+)
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+Compared to `model.matrix()`, `mdl::mtrx()`:
 
-```{r cars}
-summary(cars)
+* Names its intercept `intercept` rather than `(Intercept)`.
+* Does not accept formulae with inlined functions (like `-` or `*`).
+* Names dummy variables created from characters and factors as `colname_level` rather than `colnamelevel`.
+* Names dummy variables create from logicals as `colname` rather than `colnameTRUE`.
+* Never drops rows (and thus doesn't accept an `na.action`).
+* Assumes that factors levels are encoded as they're intended (i.e. `drop.unused.levels` and `xlev` are not accepted).
+
+It's also _much_ faster:
+
+```{r}
+bench::mark(
+  mdl::mtrx(mpg ~ ., mtcars),
+  model.matrix(mpg ~ ., mtcars),
+  check = FALSE
+)
 ```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.

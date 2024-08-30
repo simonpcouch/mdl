@@ -1,0 +1,76 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# mdl
+
+<!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/mdl)](https://CRAN.R-project.org/package=mdl)
+<!-- badges: end -->
+
+mdl implements an opinionated and performant reimagining of model
+matrices. The package supplies one function, `mdl::mtrx()` (read: “model
+matrix”), that takes in a formula and data frame and outputs a numeric
+matrix. Compared to its base R friend, `model.matrix()`, it’s really,
+really fast.
+
+**This package is highly experimental. Interpret results with caution!**
+
+## Installation
+
+You can install the development version of mdl like so:
+
+``` r
+# install.packages("mdl")
+pak::pak("simonpcouch/mdl")
+```
+
+## Example
+
+The output of `mdl::mtrx()` looks a lot like that from `model.matrix()`:
+
+``` r
+# convert to factor to demonstrate dummy variable creations
+mtcars$cyl <- as.factor(mtcars$cyl)
+
+head(
+  mdl::mtrx(mpg ~ ., mtcars)
+)
+#>   intercept cyl_6 cyl_8 disp  hp drat    wt  qsec vs am gear carb
+#> 1         1     1     0  160 110 3.90 2.620 16.46  0  1    4    4
+#> 2         1     1     0  160 110 3.90 2.875 17.02  0  1    4    4
+#> 3         1     0     0  108  93 3.85 2.320 18.61  1  1    4    1
+#> 4         1     1     0  258 110 3.08 3.215 19.44  1  0    3    1
+#> 5         1     0     1  360 175 3.15 3.440 17.02  0  0    3    2
+#> 6         1     1     0  225 105 2.76 3.460 20.22  1  0    3    1
+```
+
+Compared to `model.matrix()`, `mdl::mtrx()`:
+
+- Names its intercept `intercept` rather than `(Intercept)`.
+- Does not accept formulae with inlined functions (like `-` or `*`).
+- Names dummy variables created from characters and factors as
+  `colname_level` rather than `colnamelevel`.
+- Names dummy variables create from logicals as `colname` rather than
+  `colnameTRUE`.
+- Never drops rows (and thus doesn’t accept an `na.action`).
+- Assumes that factors levels are encoded as they’re intended
+  (i.e. `drop.unused.levels` and `xlev` are not accepted).
+
+It’s also *much* faster:
+
+``` r
+bench::mark(
+  mdl::mtrx(mpg ~ ., mtcars),
+  model.matrix(mpg ~ ., mtcars),
+  check = FALSE
+)
+#> # A tibble: 2 × 6
+#>   expression                         min   median `itr/sec` mem_alloc `gc/sec`
+#>   <bch:expr>                    <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
+#> 1 mdl::mtrx(mpg ~ ., mtcars)      29.6µs   31.7µs    30543.    3.34KB     15.3
+#> 2 model.matrix(mpg ~ ., mtcars)  319.6µs    339µs     2910.  494.24KB     27.6
+```
