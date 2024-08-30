@@ -1,0 +1,13 @@
+[package]
+name = 'mdl'
+publish = false
+version = '0.1.0'
+edition = '2021'
+
+[lib]
+crate-type = [ 'staticlib' ]
+name = 'mdl'
+
+[dependencies]
+extendr-api = { version = "0.4", features = ["ndarray"] }
+ndarray = '0.16.1'
