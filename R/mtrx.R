@@ -11,7 +11,7 @@
 #'
 #' @section Comparison to Base R:
 #'
-#' Compared to `model.frame(model.matrix())`, `mdl::mtrx()`:
+#' Compared to `model.matrix()`, `mdl::mtrx()`:
 #'
 #' * Names its intercept `intercept` rather than `(Intercept)`.
 #' * Does not accept formulae with inlined functions (like `-` or `*`).
@@ -19,6 +19,9 @@
 #' * Names dummy variables create from logicals as `colname` rather than `colnameTRUE`.
 #' * Never drops rows (and thus doesn't accept an `na.action`).
 #' * Assumes that factors levels are encoded as they're intended (i.e. `drop.unused.levels` and `xlev` are not accepted).
+#'
+#' `mdl::mtrx()` is intended to be paired with the recipes package for
+#' preprocessing.
 #'
 #' @examples
 #' mdl::mtrx(mpg ~ ., mtcars)

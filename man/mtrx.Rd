@@ -20,7 +20,7 @@ like \code{model.matrix()}.
 \section{Comparison to Base R}{
 
 
-Compared to \code{model.frame(model.matrix())}, \code{mdl::mtrx()}:
+Compared to \code{model.matrix()}, \code{mdl::mtrx()}:
 \itemize{
 \item Names its intercept \code{intercept} rather than \code{(Intercept)}.
 \item Does not accept formulae with inlined functions (like \code{-} or \code{*}).
@@ -29,6 +29,9 @@ Compared to \code{model.frame(model.matrix())}, \code{mdl::mtrx()}:
 \item Never drops rows (and thus doesn't accept an \code{na.action}).
 \item Assumes that factors levels are encoded as they're intended (i.e. \code{drop.unused.levels} and \code{xlev} are not accepted).
 }
+
+\code{mdl::mtrx()} is intended to be paired with the recipes package for
+preprocessing.
 }
 
 \examples{
