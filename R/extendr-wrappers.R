@@ -6,7 +6,6 @@
 # This file was created with the following call:
 #   .Call("wrap__make_mdl_wrappers", use_symbols = TRUE, package_name = "mdl")
 
-#' @docType package
 #' @usage NULL
 #' @useDynLib mdl, .registration = TRUE
 NULL

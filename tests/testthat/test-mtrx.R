@@ -1,4 +1,4 @@
-test_that("model_matrix gives similar results to model.matrix", {
+test_that("mtrx() gives similar results to model.matrix()", {
   set.seed(1)
   d <-
     data.frame(
@@ -17,4 +17,11 @@ test_that("model_matrix gives similar results to model.matrix", {
   dimnames(res_base) <- dimnames(res_mtrx)
 
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
+})
+
+test_that("mtrx() errors informatively with bad input", {
+  expect_snapshot(error = TRUE, mtrx(1, 2))
+  expect_snapshot(error = TRUE, mtrx(formula, 2))
+  expect_snapshot(error = TRUE, mtrx(mpg ~ ., 2))
+  expect_snapshot(error = TRUE, mtrx(mpg ~ ., data))
 })
