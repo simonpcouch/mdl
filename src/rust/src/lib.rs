@@ -17,8 +17,8 @@ fn model_matrix(data: List) -> Result<Robj> {
                     let mut dummy_cols = Array2::<f64>::zeros((nrow, levels.len() - 1));
                     
                     for (i, &val) in int_col.iter().enumerate() {
-                        if val > 0 && val <= levels.len() as i32 {
-                            let level_index = (val - 1) as usize;
+                        if val > 1 && val <= levels.len() as i32 {
+                            let level_index = (val - 2) as usize;
                             if level_index < dummy_cols.ncols() {
                                 dummy_cols[[i, level_index]] = 1.0;
                             }
