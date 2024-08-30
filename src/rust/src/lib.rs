@@ -2,20 +2,23 @@ use extendr_api::prelude::*;
 use ndarray::{Array2, s};
 
 #[extendr]
-fn model_matrix(data: List) -> Result<RMatrix<f64>> {
+fn model_matrix(data: List) -> Result<Robj> {
     let nrow = data.iter().next().map(|(_, col)| col.len()).unwrap_or(0);
     let mut processed_columns: Vec<Array2<f64>> = Vec::new();
+    let mut column_names: Vec<String> = Vec::new();
 
-    for (_, column) in data.iter() {
+    for (col_name, column) in data.iter() {
         match column.rtype() {
             Rtype::Integers => {
                 let int_col: Vec<i32> = column.as_integer_vector().unwrap();
                 let float_col: Array2<f64> = Array2::from_shape_vec((nrow, 1), int_col.into_iter().map(|x| x as f64).collect()).unwrap();
                 processed_columns.push(float_col);
+                column_names.push(col_name.to_string());
             },
             Rtype::Doubles => {
                 let float_col: Array2<f64> = Array2::from_shape_vec((nrow, 1), column.as_real_vector().unwrap()).unwrap();
                 processed_columns.push(float_col);
+                column_names.push(col_name.to_string());
             },
             Rtype::Strings | Rtype::Logicals => {
                 let str_col: Vec<String> = column.as_str_vector().unwrap().into_iter().map(|s| s.to_string()).collect();
@@ -31,6 +34,11 @@ fn model_matrix(data: List) -> Result<RMatrix<f64>> {
                     }
                 }
                 processed_columns.push(dummy_cols);
+                
+                // Generate names for dummy columns
+                for level in levels.iter() {
+                    column_names.push(format!("{}_{}", col_name, level));
+                }
             },
             _ => return Err(Error::Other(format!("Unsupported column type: {:?}", column.rtype()))),
         }
@@ -38,7 +46,7 @@ fn model_matrix(data: List) -> Result<RMatrix<f64>> {
 
     // Combine all processed columns
     let ncol = processed_columns.iter().map(|arr| arr.ncols()).sum();
-    let mut result= Array2::<f64>::zeros((nrow, ncol));
+    let mut result = Array2::<f64>::zeros((nrow, ncol));
     let mut col_offset = 0;
     for col in processed_columns {
         let n = col.ncols();
@@ -53,7 +61,16 @@ fn model_matrix(data: List) -> Result<RMatrix<f64>> {
     );
 
     // Convert RArray to Robj
-    Ok(rarray.into())
+    let robj: Robj = rarray.into();
+
+    // Create dimnames list
+    let row_names: Vec<String> = (1..=result.nrows()).map(|i| i.to_string()).collect();
+    let dimnames = List::from_values(&[row_names, column_names.clone()]);
+    
+    // Set dimnames attribute
+    robj.set_attrib("dimnames", dimnames)?;
+
+    Ok(robj)
 }
 
 // Generate exports
