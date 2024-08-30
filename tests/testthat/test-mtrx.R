@@ -17,6 +17,14 @@ test_that("mtrx() gives similar results to model.matrix()", {
   dimnames(res_base) <- dimnames(res_mtrx)
 
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
+  expect_equal(
+    colnames(res_mtrx),
+    c("intercept", "pred_numeric", "pred_integer", "pred_logical",
+      "pred_factor_2_b", "pred_factor_3_b", "pred_factor_3_c", "pred_character_2_b",
+      "pred_character_3_b", "pred_character_3_c")
+  )
+  expect_equal(rownames(res_mtrx), as.character(seq(1, nrow(res_mtrx))))
+  expect_equal(nrow(d), nrow(res_mtrx))
 })
 
 test_that("mtrx() errors informatively with bad input", {
