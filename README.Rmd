@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/mdl)](https://CRAN.R-project.org/package=mdl)
 <!-- badges: end -->
 
-mdl implements an opinionated and performant reimagining of model matrices. The package supplies one function, `mdl::mtrx()` (read: "model matrix"), that takes in a formula and data frame and outputs a numeric matrix. Compared to its base R friend, `model.matrix()`, it's really, really fast.
+mdl implements an opinionated and performant reimagining of model matrices. The package supplies one function, `mdl::mtrx()` (read: "model matrix"), that takes in a formula and data frame and outputs a numeric matrix. In some situations, it can be quite fast compared to its base R friend `model.matrix()`.
 
 **This package is highly experimental. Interpret results with caution!**
 
@@ -46,7 +46,7 @@ head(
 )
 ```
 
-Compared to `model.matrix()`, `mdl::mtrx()`:
+Compared to `model.matrix()`, `mdl::mtrx()` is sort of a glorified `as.matrix()` data frame method. More specifically:
 
 * Names its intercept `intercept` rather than `(Intercept)`.
 * Does not accept formulae with inlined functions (like `-` or `*`).
@@ -55,7 +55,7 @@ Compared to `model.matrix()`, `mdl::mtrx()`:
 * Never drops rows (and thus doesn't accept an `na.action`).
 * Assumes that factors levels are encoded as they're intended (i.e. `drop.unused.levels` and `xlev` are not accepted).
 
-It's also _much_ faster:
+It's quite a bit faster for smaller data sets:
 
 ```{r}
 bench::mark(
@@ -64,3 +64,5 @@ bench::mark(
   check = FALSE
 )
 ```
+
+The factor of speedup isn't so drastic for larger datasets, and `mdl::mtrx()` can even be slower than `model.matrix()` when creating many dummy variables.
