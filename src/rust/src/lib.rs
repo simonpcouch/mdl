@@ -1,5 +1,6 @@
 use extendr_api::prelude::*;
 use ndarray::{Array2, s};
+use std::collections::HashMap;
 
 #[extendr]
 fn model_matrix(data: List) -> Result<Robj> {
@@ -95,22 +96,31 @@ fn process_double_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<
 }
 
 fn process_string_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
-    let str_col: Vec<String> = column.as_str_vector().unwrap().into_iter().map(|s| s.to_string()).collect();
-    let mut levels: Vec<String> = str_col.clone();
-    levels.sort();
-    levels.dedup();
+    let str_col: Vec<&str> = column.as_str_vector().unwrap();
+    let mut level_map: HashMap<&str, usize> = HashMap::with_capacity(str_col.len());
+    let mut levels: Vec<&str> = Vec::new();
 
-    let mut dummy_cols = Array2::<f64>::zeros((nrow, levels.len() - 1));
-    for (i, val) in str_col.iter().enumerate() {
-        if let Some(pos) = levels.iter().position(|x| x == val) {
-            if pos > 0 {  // Skip the first level (reference level)
-                dummy_cols[[i, pos - 1]] = 1.0;
-            }
+    // First pass: create level mapping
+    for &s in &str_col {
+        if !level_map.contains_key(s) {
+            level_map.insert(s, levels.len());
+            levels.push(s);
         }
     }
 
-    let column_names: Vec<String> = levels.iter().skip(1)
-        .map(|level| format!("{}_{}", col_name, level))
+    let num_levels = levels.len();
+    let mut dummy_cols = Array2::<f64>::zeros((nrow, num_levels - 1));
+
+    // Second pass: fill dummy columns
+    for (i, &s) in str_col.iter().enumerate() {
+        let level_index = level_map[s];
+        if level_index > 0 {
+            dummy_cols[[i, num_levels - level_index - 1]] = 1.0;
+        }
+    }
+
+    let column_names: Vec<String> = levels.iter().skip(1).rev()
+        .map(|&level| format!("{}_{}", col_name, level))
         .collect();
 
     (dummy_cols, column_names)
