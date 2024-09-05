@@ -6,6 +6,8 @@ fn model_matrix(data: List) -> Result<Robj> {
     let nrow = data.iter().next().map(|(_, col)| col.len()).unwrap_or(0);
     let columns = data.iter().map(|(id, col)| {
         if col.is_string() {
+            // convert strings (character-vector) to factor, via R,
+            // as R can do this more efficiently than us
             (id, R!("factor({{col}})").unwrap())
         } else {
             (id, col)
@@ -34,7 +36,6 @@ fn model_matrix(data: List) -> Result<Robj> {
 
     // Add intercept column
     processed_columns[0..nrow].fill(1.);
-
     column_names.push("intercept".to_string());
 
     // Iterate through columns
@@ -72,13 +73,6 @@ fn model_matrix(data: List) -> Result<Robj> {
                 &mut column_names,
                 &mut processed_columns[(current_column * nrow)..((current_column + 1) * nrow)],
             ),
-            Rtype::Strings => process_string_column(
-                &column,
-                col_name,
-                nrow,
-                &mut column_names,
-                &mut processed_columns[(current_column * nrow)..],
-            ),
             Rtype::Logicals => process_logical_column(
                 &column,
                 col_name,
@@ -99,14 +93,11 @@ fn model_matrix(data: List) -> Result<Robj> {
             current_column += 1;
         }
     }
-
-    // Combine all processed columns.
-    // Note that entries in processed_columns may have more than one column.
     let mut robj: Robj = processed_columns_matrix.into();
 
     // Create dimnames list
-    let row_names: Vec<String> = (1..=nrow).map(|i| i.to_string()).collect();
-    let dimnames = List::from_values(&[row_names, column_names]);
+    let row_names = R!("seq_len({{nrow}})").unwrap();
+    let dimnames = List::from_values(&[row_names, column_names.into()]);
 
     // Set dimnames attribute
     robj.set_attrib("dimnames", dimnames)?;
@@ -140,15 +131,14 @@ fn process_factor_column(
             .levels()
             .unwrap()
             .skip(1)
+            // this is a different separator than the one used in `model.matrix` in R
             .map(|level| format!("{}_{}", col_name, level)),
     );
     // remove the first level from all the factors
     let level_index = column.as_integer_slice().unwrap().iter().map(|x| *x - 2);
-    // let nlevels = column.levels().unwrap().len() - 1;
     output.fill(0.);
-    for (k, level_index) in level_index.enumerate() {
-        let row_id = k;
-        // dbg!(k, level_index);
+    for (row_id, level_index) in level_index.enumerate() {
+        // we should have skipped level 1 tags anyways, so we do that here.
         let col_id: Option<usize> = level_index.try_into().ok();
         if let Some(col_id) = col_id {
             let linear_id = row_id + col_id * nrow;
@@ -166,26 +156,6 @@ fn process_double_column(
 ) {
     output_column_names.push(col_name.to_string());
     output.copy_from_slice(column.as_real_slice().unwrap())
-}
-
-fn process_string_column(
-    column: &Robj,
-    col_name: &str,
-    nrow: usize,
-    output_column_names: &mut Vec<String>,
-    output: &mut [f64],
-) {
-    // R is very efficient at converting its own strings into factors, we should use that..
-    let into_factor_by_r = R!("factor({{column}})").unwrap();
-
-    let nlevels = into_factor_by_r.levels().unwrap().len() - 1;
-    process_factor_column(
-        &into_factor_by_r,
-        col_name,
-        nrow,
-        output_column_names,
-        &mut output[..nlevels * nrow],
-    )
 }
 
 fn process_logical_column(
