@@ -21,6 +21,7 @@ Useful links:
 
 Other contributors:
 \itemize{
+  \item Mossa M. Reimert \email{mossa@sund.ku.dk} [contributor]
   \item Posit Software, PBC [copyright holder, funder]
 }
 
