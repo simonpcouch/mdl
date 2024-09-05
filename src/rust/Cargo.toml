@@ -9,4 +9,4 @@ crate-type = ['staticlib']
 name = 'mdl'
 
 [dependencies]
-extendr-api = { version = "0.7.1", features = ["ndarray"] }
+extendr-api = { version = "0.7.1" }
