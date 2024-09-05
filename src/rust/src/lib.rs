@@ -14,7 +14,8 @@ fn model_matrix(data: List) -> Result<Robj> {
         }
     });
 
-    // every factor is turned into a one-hot vector, thus every factor results in levels() many more columns
+    // every factor level but the first is turned into a one-hot vector, 
+    // thus every factor results in levels()-1 many more columns
     let ncol: usize = columns
         .clone()
         .map(|(_id, x)| {
@@ -29,7 +30,6 @@ fn model_matrix(data: List) -> Result<Robj> {
     // add intercept
     let ncol = ncol + 1;
 
-    // note that we need one more column for the _intercept_
     let mut processed_columns_matrix: RMatrix<f64> = RMatrix::new(nrow, ncol);
     let processed_columns = processed_columns_matrix.as_real_slice_mut().unwrap();
     let mut column_names: Vec<String> = Vec::with_capacity(ncol);
