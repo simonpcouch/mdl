@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/mdl)](https://CRAN.R-project.org/package=mdl)
 <!-- badges: end -->
 
-mdl implements an opinionated and performant reimagining of model matrices. The package supplies one function, `mdl::mtrx()` (read: "model matrix"), that takes in a formula and data frame and outputs a numeric matrix. In some situations, it can be quite fast compared to its base R friend `model.matrix()`.
+mdl implements an opinionated and performant reimagining of model matrices. The package supplies one function, `mdl::mtrx()` (read: "model matrix"), that takes in a formula and data frame and outputs a numeric matrix. Compared to its base R friend `model.matrix()`, it's _really_ fast.
 
 **This package is highly experimental. Interpret results with caution!**
 
@@ -65,4 +65,16 @@ bench::mark(
 )
 ```
 
-The factor of speedup isn't so drastic for larger datasets, and `mdl::mtrx()` can even be slower than `model.matrix()` when creating many dummy variables.
+The factor of speedup isn't so drastic for larger datasets and datasets with more factors, but it is still quite substantial:
+
+```{r}
+for (p in c("vs", "am", "gear", "carb")) {
+  mtcars[[p]] <- as.factor(mtcars[[p]])
+}
+
+bench::mark(
+  mdl::mtrx(mpg ~ ., mtcars[rep(1:32, 1e5), ]),
+  model.matrix(mpg ~ ., mtcars[rep(1:32, 1e5), ]),
+  check = FALSE
+)
+```

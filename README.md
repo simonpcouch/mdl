@@ -14,8 +14,8 @@ status](https://www.r-pkg.org/badges/version/mdl)](https://CRAN.R-project.org/pa
 mdl implements an opinionated and performant reimagining of model
 matrices. The package supplies one function, `mdl::mtrx()` (read: “model
 matrix”), that takes in a formula and data frame and outputs a numeric
-matrix. In some situations, it can be quite fast compared to its base R
-friend `model.matrix()`.
+matrix. Compared to its base R friend `model.matrix()`, it’s *really*
+fast.
 
 **This package is highly experimental. Interpret results with caution!**
 
@@ -72,10 +72,28 @@ bench::mark(
 #> # A tibble: 2 × 6
 #>   expression                         min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                    <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 mdl::mtrx(mpg ~ ., mtcars)        26µs   27.6µs    35231.    3.34KB     17.6
-#> 2 model.matrix(mpg ~ ., mtcars)    283µs  292.1µs     3359.  494.24KB     31.8
+#> 1 mdl::mtrx(mpg ~ ., mtcars)      23.4µs   25.5µs    38066.    3.32KB     19.0
+#> 2 model.matrix(mpg ~ ., mtcars)  281.1µs    294µs     3327.  494.24KB     31.9
 ```
 
-The factor of speedup isn’t so drastic for larger datasets, and
-`mdl::mtrx()` can even be slower than `model.matrix()` when creating
-many dummy variables.
+The factor of speedup isn’t so drastic for larger datasets and datasets
+with more factors, but it is still quite substantial:
+
+``` r
+for (p in c("vs", "am", "gear", "carb")) {
+  mtcars[[p]] <- as.factor(mtcars[[p]])
+}
+
+bench::mark(
+  mdl::mtrx(mpg ~ ., mtcars[rep(1:32, 1e5), ]),
+  model.matrix(mpg ~ ., mtcars[rep(1:32, 1e5), ]),
+  check = FALSE
+)
+#> Warning: Some expressions had a GC in every iteration; so filtering is
+#> disabled.
+#> # A tibble: 2 × 6
+#>   expression                             min median `itr/sec` mem_alloc `gc/sec`
+#>   <bch:expr>                           <bch> <bch:>     <dbl> <bch:byt>    <dbl>
+#> 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.49s  1.49s     0.670  803.01MB    0.670
+#> 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.06s  2.06s     0.484    1.86GB    1.94
+```
