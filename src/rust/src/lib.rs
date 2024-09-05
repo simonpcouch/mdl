@@ -1,5 +1,4 @@
 use extendr_api::prelude::*;
-use ndarray::{Array2, s};
 use std::collections::HashMap;
 
 #[extendr]
@@ -37,20 +36,11 @@ fn model_matrix(data: List) -> Result<Robj> {
         result.slice_mut(s![.., col_offset..col_offset+n]).assign(&col);
         col_offset += n;
     }
-
-    // Convert from Array2...
-    // TODO: I think the remainder of this function likely could be simpler.
-    let rarray = RArray::new_matrix(
-        result.nrows(),
-        result.ncols(),
-        |r, c| result[[r, c]]
-    );
-
-    // Convert RArray to Robj
-    let robj: Robj = rarray.into();
+    let nrows = result.nrows();
+    let mut robj: Robj = result.try_into().unwrap();
 
     // Create dimnames list
-    let row_names: Vec<String> = (1..=result.nrows()).map(|i| i.to_string()).collect();
+    let row_names: Vec<String> = (1..=nrows).map(|i| i.to_string()).collect();
     let dimnames = List::from_values(&[row_names, column_names.clone()]);
 
     // Set dimnames attribute
