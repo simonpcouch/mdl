@@ -4,11 +4,18 @@ use std::iter::zip;
 #[extendr]
 fn model_matrix(data: List) -> Result<Robj> {
     let nrow = data.iter().next().map(|(_, col)| col.len()).unwrap_or(0);
+    let columns = data.iter().map(|(id, col)| {
+        if col.is_string() {
+            (id, R!("factor({{col}})").unwrap())
+        } else {
+            (id, col)
+        }
+    });
 
     // every factor is turned into a one-hot vector, thus every factor results in levels() many more columns
-    let ncol: usize = data
-        .values()
-        .map(|x| {
+    let ncol: usize = columns
+        .clone()
+        .map(|(_id, x)| {
             if x.is_factor() {
                 x.levels().unwrap().len() - 1
             } else {
@@ -32,7 +39,7 @@ fn model_matrix(data: List) -> Result<Robj> {
 
     // Iterate through columns
     let mut current_column = 1; // we passed the intercept
-    let mut data_iter = data.iter();
+    let mut data_iter = columns;
     loop {
         let (col_name, column) = if let Some(next_column) = data_iter.next() {
             next_column
@@ -199,4 +206,19 @@ fn process_logical_column(
 extendr_module! {
     mod mdl;
     fn model_matrix;
+}
+
+#[cfg(test)]
+mod tests {
+    use extendr_engine::with_r;
+
+    use super::*;
+
+    #[test]
+    fn test_character_vector_conversion() {
+        with_r(|| {
+            let dd = R!(r#"data.frame(x = (c("a", "b", "c")))"#).unwrap();
+            let _ = model_matrix(dd.as_list().unwrap());
+        });
+    }
 }
