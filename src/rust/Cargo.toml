@@ -8,5 +8,8 @@ edition = '2021'
 crate-type = ['staticlib']
 name = 'mdl'
 
+[dev-dependencies]
+extendr-engine = { version = "0.7.1" }
+
 [dependencies]
-extendr-api = { version = "0.7.1", features = ["ndarray"] }
+extendr-api = { version = "0.7.1" }

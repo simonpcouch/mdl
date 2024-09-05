@@ -1,47 +1,103 @@
 use extendr_api::prelude::*;
-use std::collections::HashMap;
+use std::iter::zip;
 
 #[extendr]
 fn model_matrix(data: List) -> Result<Robj> {
     let nrow = data.iter().next().map(|(_, col)| col.len()).unwrap_or(0);
-    let mut processed_columns: Vec<Array2<f64>> = Vec::new();
-    let mut column_names: Vec<String> = Vec::new();
+    let columns = data.iter().map(|(id, col)| {
+        if col.is_string() {
+            // convert strings (character-vector) to factor, via R,
+            // as R can do this more efficiently than us
+            (id, R!("factor({{col}})").unwrap())
+        } else {
+            (id, col)
+        }
+    });
+
+    // every factor level but the first is turned into a one-hot vector, 
+    // thus every factor results in levels()-1 many more columns
+    let ncol: usize = columns
+        .clone()
+        .map(|(_id, x)| {
+            if x.is_factor() {
+                x.levels().unwrap().len() - 1
+            } else {
+                1
+            }
+        })
+        .sum();
+
+    // add intercept
+    let ncol = ncol + 1;
+
+    let mut processed_columns_matrix: RMatrix<f64> = RMatrix::new(nrow, ncol);
+    let processed_columns = processed_columns_matrix.as_real_slice_mut().unwrap();
+    let mut column_names: Vec<String> = Vec::with_capacity(ncol);
 
     // Add intercept column
-    processed_columns.push(Array2::ones((nrow, 1)));
+    processed_columns[0..nrow].fill(1.);
     column_names.push("intercept".to_string());
 
     // Iterate through columns
-    for (col_name, column) in data.iter() {
-        let (processed_column, mut new_column_names) = match column.rtype() {
-            // Note that factors match this first condition
-            Rtype::Integers => process_integer_column(&column, col_name, nrow),
-            Rtype::Doubles => process_double_column(&column, col_name, nrow),
-            Rtype::Strings => process_string_column(&column, col_name, nrow),
-            Rtype::Logicals => process_logical_column(&column, col_name, nrow),
-            _ => return Err(Error::Other(format!("Unsupported column type: {:?}", column.rtype()))),
+    let mut current_column = 1; // we passed the intercept
+    let mut data_iter = columns;
+    loop {
+        let (col_name, column) = if let Some(next_column) = data_iter.next() {
+            next_column
+        } else {
+            break;
         };
 
-        processed_columns.push(processed_column);
-        column_names.append(&mut new_column_names);
-    }
+        match column.rtype() {
+            // Note that factors match this first condition
+            Rtype::Integers if column.is_factor() => {
+                let nlevels = column.levels().unwrap().len() - 1;
+                process_factor_column(
+                    &column,
+                    col_name,
+                    nrow,
+                    &mut column_names,
+                    &mut processed_columns
+                        [(current_column * nrow)..((current_column + nlevels) * nrow)],
+                )
+            }
+            Rtype::Integers => process_integer_column(
+                &column,
+                col_name,
+                &mut column_names,
+                &mut processed_columns[(current_column * nrow)..((current_column + 1) * nrow)],
+            ),
+            Rtype::Doubles => process_double_column(
+                &column,
+                col_name,
+                &mut column_names,
+                &mut processed_columns[(current_column * nrow)..((current_column + 1) * nrow)],
+            ),
+            Rtype::Logicals => process_logical_column(
+                &column,
+                col_name,
+                &mut column_names,
+                &mut processed_columns[(current_column * nrow)..((current_column + 1) * nrow)],
+            ),
+            _ => {
+                return Err(Error::Other(format!(
+                    "Unsupported column type: {:?}",
+                    column.rtype()
+                )))
+            }
+        };
 
-    // Combine all processed columns.
-    // Note that entries in processed_columns may have more than one column.
-    let ncol = processed_columns.iter().map(|arr| arr.ncols()).sum();
-    let mut result = Array2::<f64>::zeros((nrow, ncol));
-    let mut col_offset = 0;
-    for col in processed_columns {
-        let n = col.ncols();
-        result.slice_mut(s![.., col_offset..col_offset+n]).assign(&col);
-        col_offset += n;
+        if column.is_factor() {
+            current_column += column.levels().unwrap().len() - 1;
+        } else {
+            current_column += 1;
+        }
     }
-    let nrows = result.nrows();
-    let mut robj: Robj = result.try_into().unwrap();
+    let mut robj: Robj = processed_columns_matrix.into();
 
     // Create dimnames list
-    let row_names: Vec<String> = (1..=nrows).map(|i| i.to_string()).collect();
-    let dimnames = List::from_values(&[row_names, column_names.clone()]);
+    let row_names = R!("seq_len({{nrow}})").unwrap();
+    let dimnames = List::from_values(&[row_names, column_names.into()]);
 
     // Set dimnames attribute
     robj.set_attrib("dimnames", dimnames)?;
@@ -49,84 +105,90 @@ fn model_matrix(data: List) -> Result<Robj> {
     Ok(robj)
 }
 
-fn process_integer_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
-    if column.inherits("factor") {
-        process_factor_column(column, col_name, nrow)
-    } else {
-        let int_col: Vec<i32> = column.as_integer_vector().unwrap();
-        let float_col: Array2<f64> = Array2::from_shape_vec((nrow, 1), int_col.into_iter().map(|x| x as f64).collect()).unwrap();
-        (float_col, vec![col_name.to_string()])
-    }
+fn process_integer_column(
+    column: &Robj,
+    col_name: &str,
+    output_column_names: &mut Vec<String>,
+    output: &mut [f64],
+) {
+    output_column_names.push(col_name.to_string());
+    zip(column.as_integer_slice().unwrap().iter(), output.iter_mut()).for_each(
+        |(integer_element, output)| {
+            *output = *integer_element as f64;
+        },
+    );
 }
 
-fn process_factor_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
-    let int_col: Vec<i32> = column.as_integer_vector().unwrap();
-    let levels: Vec<String> = column.levels().unwrap().map(|s| s.to_string()).collect();
-    let mut dummy_cols = Array2::<f64>::zeros((nrow, levels.len() - 1));
+fn process_factor_column(
+    column: &Robj,
+    col_name: &str,
+    nrow: usize,
+    output_column_names: &mut Vec<String>,
+    output: &mut [f64],
+) {
+    output_column_names.extend(
+        column
+            .levels()
+            .unwrap()
+            .skip(1)
+            // this is a different separator than the one used in `model.matrix` in R
+            .map(|level| format!("{}_{}", col_name, level)),
+    );
+    // remove the first level from all the factors
+    let level_index = column.as_integer_slice().unwrap().iter().map(|x| *x - 2);
+    output.fill(0.);
+    for (row_id, level_index) in level_index.enumerate() {
+        // we should have skipped level 1 tags anyways, so we do that here.
+        let col_id: Option<usize> = level_index.try_into().ok();
+        if let Some(col_id) = col_id {
+            let linear_id = row_id + col_id * nrow;
 
-    for (i, &val) in int_col.iter().enumerate() {
-        if val > 1 && val <= levels.len() as i32 {
-            let level_index = (val - 2) as usize;
-            if level_index < dummy_cols.ncols() {
-                dummy_cols[[i, level_index]] = 1.0;
-            }
+            output[linear_id] = 1.0;
         }
     }
-
-    let column_names: Vec<String> = levels.iter().skip(1)
-        .map(|level| format!("{}_{}", col_name, level))
-        .collect();
-
-    (dummy_cols, column_names)
 }
 
-fn process_double_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
-    let float_col: Array2<f64> = Array2::from_shape_vec((nrow, 1), column.as_real_vector().unwrap()).unwrap();
-    (float_col, vec![col_name.to_string()])
+fn process_double_column(
+    column: &Robj,
+    col_name: &str,
+    output_column_names: &mut Vec<String>,
+    output: &mut [f64],
+) {
+    output_column_names.push(col_name.to_string());
+    output.copy_from_slice(column.as_real_slice().unwrap())
 }
 
-fn process_string_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
-    let str_col: Vec<&str> = column.as_str_vector().unwrap();
-    let mut level_map: HashMap<&str, usize> = HashMap::with_capacity(str_col.len());
-    let mut levels: Vec<&str> = Vec::new();
-
-    // First pass: create level mapping
-    for &s in &str_col {
-        if !level_map.contains_key(s) {
-            level_map.insert(s, levels.len());
-            levels.push(s);
-        }
-    }
-
-    let num_levels = levels.len();
-    let mut dummy_cols = Array2::<f64>::zeros((nrow, num_levels - 1));
-
-    // Second pass: fill dummy columns
-    for (i, &s) in str_col.iter().enumerate() {
-        let level_index = level_map[s];
-        if level_index > 0 {
-            dummy_cols[[i, num_levels - level_index - 1]] = 1.0;
-        }
-    }
-
-    let column_names: Vec<String> = levels.iter().skip(1).rev()
-        .map(|&level| format!("{}_{}", col_name, level))
-        .collect();
-
-    (dummy_cols, column_names)
-}
-
-fn process_logical_column(column: &Robj, col_name: &str, nrow: usize) -> (Array2<f64>, Vec<String>) {
-    let bool_col: Vec<Rbool> = column.as_logical_vector().unwrap();
-    let float_col: Array2<f64> = Array2::from_shape_vec(
-        (nrow, 1),
-        bool_col.into_iter().map(|x| if x.is_true() { 1.0 } else { 0.0 }).collect()
-    ).unwrap();
-    (float_col, vec![col_name.to_string()])
+fn process_logical_column(
+    column: &Robj,
+    col_name: &str,
+    output_column_names: &mut Vec<String>,
+    output: &mut [f64],
+) {
+    output_column_names.push(col_name.to_string());
+    zip(column.as_logical_iter().unwrap(), output.iter_mut()).for_each(
+        |(logical_element, output)| {
+            *output = logical_element.to_bool() as i32 as f64;
+        },
+    );
 }
 
 // Generate exports
 extendr_module! {
     mod mdl;
     fn model_matrix;
+}
+
+#[cfg(test)]
+mod tests {
+    use extendr_engine::with_r;
+
+    use super::*;
+
+    #[test]
+    fn test_character_vector_conversion() {
+        with_r(|| {
+            let dd = R!(r#"data.frame(x = (c("a", "b", "c")))"#).unwrap();
+            let _ = model_matrix(dd.as_list().unwrap());
+        });
+    }
 }
