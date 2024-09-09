@@ -64,12 +64,12 @@
 
     
     
-<p>A critical reader suggest that, given that <code><a href="../reference/mtrx.html">mdl::mtrx()</a></code>
-does quite a bit less than <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, it’s not really
-suprising that it would run more quickly than
-<code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>. How fast could we make an analogue to
-<code><a href="../reference/mtrx.html">mdl::mtrx()</a></code> in “plain R” (i.e. without rust)? Let’s
-see.</p>
+<p>A critical reader might suggest that, given that
+<code><a href="../reference/mtrx.html">mdl::mtrx()</a></code> does quite a bit less than
+<code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, it’s not really suprising that it would run
+more quickly than <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>. How fast could we make an
+analogue to <code><a href="../reference/mtrx.html">mdl::mtrx()</a></code> in “plain R” (i.e. without rust)?
+Let’s see.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/simonpcouch/mdl" class="external-link">mdl</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bench.r-lib.org/" class="external-link">bench</a></span><span class="op">)</span></span>
@@ -180,9 +180,9 @@ dataset:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 6</span></span></span>
 <span><span class="co">#&gt;   expression        min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;bch:expr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        158µs    166µs     <span style="text-decoration: underline;">5</span>914.    38.8KB     22.2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       199µs    208µs     <span style="text-decoration: underline;">4</span>728.   800.6KB     16.9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    786µs    825µs     <span style="text-decoration: underline;">1</span>193.   488.8KB     24.2</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        154µs    163µs     <span style="text-decoration: underline;">5</span>885.    38.8KB     22.1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       190µs    199µs     <span style="text-decoration: underline;">4</span>928.   800.6KB     19.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    776µs    809µs     <span style="text-decoration: underline;">1</span>226.   488.8KB     21.7</span></span></code></pre></div>
 <p>Not bad, scrappy little feller! Now, on a few more reasonably sized
 datasets:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -214,15 +214,15 @@ largest numbers of rows:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">#&gt;   expression     median mem_alloc</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;bch:expr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        1.88s    3.02GB</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       1.12s    1.84GB</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    2.88s    4.17GB</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        1.91s    3.02GB</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       1.15s    1.84GB</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    3.17s    4.17GB</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timings</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">median</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>In this timing, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code> took 2.6x slower than
+<p>In this timing, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code> took 2.8x slower than
 <code><a href="../reference/mtrx.html">mdl::mtrx()</a></code>, and our speedy plain R approach took 1.7x as
 long.</p>
 </div>
