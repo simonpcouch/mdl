@@ -23,3 +23,8 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 SystemRequirements: Cargo (Rust's package manager), rustc
+Config/Needs/website: 
+     r-lib/bench#144,
+     dplyr,
+     ggplot2,
+     rmarkdown

@@ -72,8 +72,8 @@ bench::mark(
 #> # A tibble: 2 × 6
 #>   expression                         min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                    <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 mdl::mtrx(mpg ~ ., mtcars)      23.4µs   25.5µs    38066.    3.32KB     19.0
-#> 2 model.matrix(mpg ~ ., mtcars)  281.1µs    294µs     3327.  494.24KB     31.9
+#> 1 mdl::mtrx(mpg ~ ., mtcars)      26.9µs   28.5µs    33778.    3.32KB     16.9
+#> 2 model.matrix(mpg ~ ., mtcars)  322.3µs  337.3µs     2852.  494.24KB     27.5
 ```
 
 The factor of speedup isn’t so drastic for larger datasets and datasets
@@ -94,6 +94,10 @@ bench::mark(
 #> # A tibble: 2 × 6
 #>   expression                             min median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                           <bch> <bch:>     <dbl> <bch:byt>    <dbl>
-#> 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.49s  1.49s     0.670  803.01MB    0.670
-#> 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.06s  2.06s     0.484    1.86GB    1.94
+#> 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.71s  1.71s     0.585  803.01MB    1.17 
+#> 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.05s  2.05s     0.489    1.86GB    0.977
 ```
+
+Check out [this
+article](https://github.com/simonpcouch/mdl/blob/main/vignettes/articles/plain-r.Rmd)
+for more detailed benchmarks.

@@ -7,3 +7,4 @@
 ^src/\.cargo$
 ^justfile$
 .vscode/
+^vignettes/articles$

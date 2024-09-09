@@ -78,3 +78,5 @@ bench::mark(
   check = FALSE
 )
 ```
+
+Check out [this article](https://github.com/simonpcouch/mdl/blob/main/vignettes/articles/plain-r.Rmd) for more detailed benchmarks.

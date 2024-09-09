@@ -1,0 +1,147 @@
+---
+title: "Benchmarking against a plain R approach"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE, 
+  warning = FALSE
+)
+```
+
+A critical reader suggest that, given that `mdl::mtrx()` does quite a bit less than `model.matrix()`, it's not really suprising that it would run more quickly than `model.matrix()`. How fast could we make an analogue to `mdl::mtrx()` in "plain R" (i.e. without rust)? Let's see.
+
+```{r setup}
+library(mdl)
+library(bench)
+library(ggplot2)
+library(dplyr)
+```
+
+## A plain R alternative
+
+`mdl::mtrx()` is mostly just a glorified `as.matrix()` method for data frames that makes dummy variables out of factors, characters, and logicals. Let's see if we mock up a plain R alternative, `mdl_mtrx()`, that's just as fast.
+
+First, we'll write a helper to apply to factors to convert them to dummy variables, loosely based on `hardhat::fct_encode_one_hot()`.
+
+```{r}
+x <- factor(sample(letters[1:3], 100, replace = TRUE))
+
+fct_encode_dummy <- function(x) {
+  row_names <- names(x)
+  col_names <- levels(x)
+  col_names <- col_names[-1]
+  dim_names <- list(row_names, col_names)
+  n_cols <- length(col_names)
+  n_rows <- length(x)
+  x <- unclass(x)
+  out <- matrix(0L, nrow = n_rows, ncol = n_cols, dimnames = dim_names)
+  loc <- cbind(row = seq_len(n_rows), col = x - 1)
+  out[loc] <- 1L
+  out
+}
+```
+
+It's hard to beat R at converting characters to factors, so we'll convert character vectors to factors and then to dummy variables via `fct_encode_dummy()`. The rest of the variable types we'll test here are one-liners.
+
+```{r}
+to_numeric <- function(x) {
+  switch(
+    class(x),
+    numeric = x,
+    integer = x,
+    character = fct_encode_dummy(as.factor(x)),
+    factor = fct_encode_dummy(x),
+    logical = x
+  )
+}
+  
+mdl_mtrx <- function(formula, data) {
+  predictors <- mdl:::predictors(formula, data)
+  
+  cols <- lapply(data[predictors], to_numeric)
+  do.call(cbind, cols)
+}
+```
+
+We'll use a data frame with a variety of types to benchmark in this article. Wrapping in a quick function:
+
+```{r}
+create_data_frame <- function(n_rows) {
+  data.frame(
+    outcome = runif(n_rows),
+    pred_numeric = runif(n_rows),
+    pred_integer = sample(c(0L, 1L), n_rows, replace = TRUE),
+    pred_logical = sample(c(TRUE, FALSE), n_rows, replace = TRUE),
+    pred_factor_2 = factor(sample(letters[1:2], n_rows, replace = TRUE)),
+    pred_factor_3 = factor(sample(letters[1:3], n_rows, replace = TRUE)),
+    pred_character_2 = sample(letters[1:2], n_rows, replace = TRUE),
+    pred_character_3 = sample(letters[1:3], n_rows, replace = TRUE)
+  )
+}
+
+d <- create_data_frame(5)
+
+d
+```
+Passing each of those data types to make sure our new function `mdl_mtrx()` does what we want in the simplest case:
+
+```{r}
+mdl_mtrx(outcome ~ ., d)
+```
+
+Okay, so, no type checking, plenty of issues with edge cases, lean and mean R function. Let's check the timings out, first on a very small dataset:
+
+```{r}
+d <- create_data_frame(30)
+
+bench::mark(
+  mdl_mtrx = mdl_mtrx(outcome ~ ., d),
+  `mdl::mtrx` = mdl::mtrx(outcome ~ ., d),
+  model.matrix = model.matrix(outcome ~ ., d),
+  check = FALSE
+)
+```
+
+Not bad, scrappy little feller! Now, on a few more reasonably sized datasets:
+
+```{r, cache = TRUE}
+res <- 
+  bench::press(
+    n_rows = 10^seq(2:8), 
+    {
+      d <- create_data_frame(n_rows)
+      bench::mark(
+        mdl_mtrx = mdl_mtrx(outcome ~ ., d),
+        `mdl::mtrx` = mdl::mtrx(outcome ~ ., d),
+        model.matrix = model.matrix(outcome ~ ., d),
+        check = FALSE
+      )
+    }
+  )
+
+ggplot(res) +
+  aes(x = n_rows, y = median, col = expression) +
+  geom_point() +
+  scale_x_log10()
+```
+
+If the log scale is tripping you up, here's a slice of data for the largest numbers of rows:
+
+```{r}
+res %>% 
+  select(expression, median, mem_alloc) %>%
+  tail(3)
+```
+
+```{r}
+timings <- res %>% 
+  tail(3) %>%
+  pull(median) %>%
+  as.numeric()
+```
+
+In this timing, `mdl::mtrx()` was `r round(1 - (timings[1] / timings[2]), 3)`% faster than the plain R approach, and `r round(1 - (timings[3] / timings[2]), 3)`% slower than `model.matrix()`.
+
