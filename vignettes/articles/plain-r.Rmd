@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-A critical reader suggest that, given that `mdl::mtrx()` does quite a bit less than `model.matrix()`, it's not really suprising that it would run more quickly than `model.matrix()`. How fast could we make an analogue to `mdl::mtrx()` in "plain R" (i.e. without rust)? Let's see.
+A critical reader might suggest that, given that `mdl::mtrx()` does quite a bit less than `model.matrix()`, it's not really suprising that it would run more quickly than `model.matrix()`. How fast could we make an analogue to `mdl::mtrx()` in "plain R" (i.e. without rust)? Let's see.
 
 ```{r setup}
 library(mdl)
