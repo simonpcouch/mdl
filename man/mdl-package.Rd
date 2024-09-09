@@ -12,6 +12,7 @@ An opinionated and performant reimagining of model matrices using Rust.
 Useful links:
 \itemize{
   \item \url{https://github.com/simonpcouch/mdl}
+  \item \url{https://simonpcouch.github.io/mdl/}
   \item Report bugs at \url{https://github.com/simonpcouch/mdl/issues}
 }
 
