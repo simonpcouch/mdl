@@ -10,7 +10,7 @@ Authors@R: c(
 Description: An opinionated and performant reimagining of model matrices
     using Rust.
 License: MIT + file LICENSE
-URL: https://github.com/simonpcouch/mdl
+URL: https://github.com/simonpcouch/mdl, https://simonpcouch.github.io/mdl/
 BugReports: https://github.com/simonpcouch/mdl/issues
 Imports: 
     cli,
@@ -23,8 +23,4 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 SystemRequirements: Cargo (Rust's package manager), rustc
-Config/Needs/website: 
-     r-lib/bench#144,
-     dplyr,
-     ggplot2,
-     rmarkdown
+Config/Needs/website: r-lib/bench#144, dplyr, ggplot2, rmarkdown, tidyverse/tidytemplate

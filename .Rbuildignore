@@ -8,3 +8,6 @@
 ^justfile$
 .vscode/
 ^vignettes/articles$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
