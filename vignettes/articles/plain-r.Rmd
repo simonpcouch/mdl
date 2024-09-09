@@ -143,5 +143,4 @@ timings <- res %>%
   as.numeric()
 ```
 
-In this timing, `mdl::mtrx()` was `r round(1 - (timings[1] / timings[2]), 3)`% faster than the plain R approach, and `r round(1 - (timings[3] / timings[2]), 3)`% slower than `model.matrix()`.
-
+In this timing, `model.matrix()` took `r round((timings[3] / timings[2]), 1)`x slower than `mdl::mtrx()`, and our speedy plain R approach took `r round((timings[1] / timings[2]), 1)`x as long.
