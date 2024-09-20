@@ -14,7 +14,7 @@ fn model_matrix(data: List) -> Result<Robj> {
         }
     });
 
-    // every factor level but the first is turned into a one-hot vector, 
+    // every factor level but the first is turned into a one-hot vector,
     // thus every factor results in levels()-1 many more columns
     let ncol: usize = columns
         .clone()
@@ -132,7 +132,7 @@ fn process_factor_column(
             .unwrap()
             .skip(1)
             // this is a different separator than the one used in `model.matrix` in R
-            .map(|level| format!("{}_{}", col_name, level)),
+            .map(|level| format!("{}{}", col_name, level)),
     );
     // remove the first level from all the factors
     let level_index = column.as_integer_slice().unwrap().iter().map(|x| *x - 2);
@@ -164,7 +164,7 @@ fn process_logical_column(
     output_column_names: &mut Vec<String>,
     output: &mut [f64],
 ) {
-    output_column_names.push(col_name.to_string());
+    output_column_names.push(format!("{}TRUE", col_name));
     zip(column.as_logical_iter().unwrap(), output.iter_mut()).for_each(
         |(logical_element, output)| {
             *output = logical_element.to_bool() as i32 as f64;
