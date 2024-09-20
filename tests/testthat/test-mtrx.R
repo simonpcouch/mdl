@@ -27,6 +27,48 @@ test_that("mtrx() gives similar results to model.matrix()", {
   expect_equal(nrow(d), nrow(res_mtrx))
 })
 
+test_that("mtrx() works with missing values", {
+  withr::local_options(na.action = "na.pass")
+
+  set.seed(1)
+  d <- data.frame(outcome = runif(30))
+
+  # in numerics:
+  d_numeric <- cbind(d, pred_numeric = c(NA, runif(29)))
+  expect_no_condition(res_mtrx <- mtrx(outcome ~ ., d_numeric))
+  res_base <- model.matrix(outcome ~ ., d_numeric)
+  dimnames(res_base) <- dimnames(res_mtrx)
+  expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
+
+  skip("TODO: mtrx() sets NA to -2147483648")
+  # in integer:
+  d_integer <- cbind(d, pred_integer = sample(c(0L, 1L), 30, replace = TRUE))
+  d_integer$pred_integer[1] <- NA
+  expect_no_condition(res_mtrx <- mtrx(outcome ~ ., d_integer))
+  res_base <- model.matrix(outcome ~ ., d_integer)
+  dimnames(res_base) <- dimnames(res_mtrx)
+  expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
+
+  skip("TODO: mtrx() panics with NAs in factor columns")
+  # in factor:
+  d_factor <- cbind(d, pred_factor = factor(sample(letters[1:3], 30, replace = TRUE)))
+  d_factor$pred_factor[1] <- NA
+  expect_no_condition(res_mtrx <- mtrx(outcome ~ ., d_factor))
+  res_base <- model.matrix(outcome ~ ., d_factor)
+  dimnames(res_base) <- dimnames(res_mtrx)
+  expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
+
+  skip("TODO: mtrx() panics with NAs in character columns")
+  # in character:
+  d_character <- cbind(d, pred_character = sample(letters[1:3], 30, replace = TRUE))
+  d_character$pred_character[1] <- NA
+  expect_no_condition(res_mtrx <- mtrx(outcome ~ ., d_character))
+  res_base <- model.matrix(outcome ~ ., d_character)
+  dimnames(res_base) <- dimnames(res_mtrx)
+  expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
+
+})
+
 test_that("mtrx() errors informatively with bad input", {
   expect_snapshot(error = TRUE, mtrx(1, 2))
   expect_snapshot(error = TRUE, mtrx(formula, 2))
