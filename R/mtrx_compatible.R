@@ -6,7 +6,7 @@
 #'
 #' * There are no non-default factor contrasts.
 #' * Every column is one of a numeric, integer, character, or factor.
-#' * There are no missing values.
+#' * The `na.action` option is `"na.pass"`.
 #'
 #' In that case, in code where [model.matrix()] results in slowdowns, one can
 #' write:
@@ -20,14 +20,17 @@
 #' ```
 #'
 #' @param data A data frame.
+#' @param na_action What to do about missing values--see [na.pass()]. Can be
+#' either a function or character, just as the option can be.
 #'
 #' @return A logical value. Returns TRUE if [mtrx()] will return a similar
 #'   matrix to [model.matrix()], and `FALSE` otherwise.
 #'
 #' @details
 #' In this case, "similar" output means that dummy variables will be encoded
-#' in the same way and that [mtrx()] won't error due to the presence of
-#' missing values or unsupported column types.
+#' in the same way, missing values will be handled in the same way (returned
+#' as-is), and that [mtrx()] won't error due to the presence of
+#' unsupported column types.
 #'
 #' @examples
 #' # Compatible data frame
@@ -43,17 +46,18 @@
 #' df3 <- data.frame(a = 1:3, b = as.Date(c("2023-01-01", "2023-01-02", "2023-01-03")))
 #' mtrx_compatible(df3)
 #'
-#' # Incompatible due to missing values
+#' # Missing values are problematic only when na_action is not `na.pass`
 #' df4 <- data.frame(a = c(1, NA, 3), b = letters[1:3])
-#' mtrx_compatible(df4)
+#' mtrx_compatible(df4, na_action = "na.omit")
+#' mtrx_compatible(df4, na_action = "na.pass")
 #'
 #' @export
-mtrx_compatible <- function(data) {
+mtrx_compatible <- function(data, na_action = getOption("na.action")) {
   if (has_unsupported_column_types(data)) {
     return(FALSE)
   }
 
-  if (has_missing_values(data)) {
+  if (has_problematic_missing_values(data, na_action)) {
     return(FALSE)
   }
 
@@ -77,7 +81,28 @@ has_unsupported_column_types <- function(data) {
   res
 }
 
-has_missing_values <- function(data) {
+has_problematic_missing_values <- function(data, na_action) {
+  # missing values will not result in changes to output vs. model.matrix unless
+  # the na.option is something other than na.pass
+  #
+  # quicker to check a couple `na.action` edge cases first.
+  #
+  # first, the default in R
+  if (identical(na_action, "na.omit") ||
+      identical(na_action, stats::na.omit)) {
+    return(not_all_complete(data))
+  }
+
+  # NAs are never problematic if we can just leave them as-is
+  if (identical(na_action, "na.pass") ||
+      identical(na_action, stats::na.pass)) {
+    return(FALSE)
+  }
+
+  not_all_complete(data)
+}
+
+not_all_complete <- function(data) {
   !all(vctrs::vec_detect_complete(data))
 }
 

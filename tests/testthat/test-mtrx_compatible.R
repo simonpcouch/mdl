@@ -36,6 +36,8 @@ test_that("mtrx_compatible() handles mixed supported and unsupported column type
 # missing values ---------------------------------------------------------------
 
 test_that("mtrx_compatible() correctly detects missing values", {
+  withr::local_options(na.action = "na.omit")
+
   df <- data.frame(
     a = 1:3,
     b = c(1.1, 2.2, 3.3),
@@ -43,33 +45,49 @@ test_that("mtrx_compatible() correctly detects missing values", {
     d = factor(letters[1:3])
   )
   expect_true(mtrx_compatible(df))
+  expect_true(mtrx_compatible(df, na_action = "na.pass"))
+  expect_true(mtrx_compatible(df, na_action = stats::na.pass))
 })
 
 test_that("mtrx_compatible() correctly identifies missing values in numeric columns", {
+  withr::local_options(na.action = "na.omit")
+
   df <- data.frame(
     a = c(1, NA, 3),
     b = c(1.1, 2.2, 3.3)
   )
   expect_false(mtrx_compatible(df))
+  expect_true(mtrx_compatible(df, na_action = "na.pass"))
+  expect_true(mtrx_compatible(df, na_action = stats::na.pass))
 })
 
 test_that("mtrx_compatible() correctly identifies missing values in character columns", {
+  withr::local_options(na.action = "na.omit")
+
   df <- data.frame(
     a = 1:3,
     b = c("A", NA, "C")
   )
   expect_false(mtrx_compatible(df))
+  expect_true(mtrx_compatible(df, na_action = "na.pass"))
+  expect_true(mtrx_compatible(df, na_action = stats::na.pass))
 })
 
 test_that("mtrx_compatible() correctly identifies missing values in factor columns", {
+  withr::local_options(na.action = "na.omit")
+
   df <- data.frame(
     a = 1:3,
     b = factor(c("X", NA, "Z"))
   )
   expect_false(mtrx_compatible(df))
+  expect_true(mtrx_compatible(df, na_action = "na.pass"))
+  expect_true(mtrx_compatible(df, na_action = stats::na.pass))
 })
 
 test_that("mtrx_compatible() handles data frames with mixed column types and missing values", {
+  withr::local_options(na.action = "na.omit")
+
   df <- data.frame(
     a = c(1, 2, NA),
     b = c(1.1, NA, 3.3),
@@ -77,6 +95,8 @@ test_that("mtrx_compatible() handles data frames with mixed column types and mis
     d = factor(c("X", NA, "Z"))
   )
   expect_false(mtrx_compatible(df))
+  expect_true(mtrx_compatible(df, na_action = "na.pass"))
+  expect_true(mtrx_compatible(df, na_action = stats::na.pass))
 })
 
 test_that("mtrx_compatible() correctly handles empty data frames", {
