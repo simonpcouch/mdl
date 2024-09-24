@@ -56,7 +56,6 @@ test_that("mtrx() works with missing values", {
   dimnames(res_base) <- dimnames(res_mtrx)
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
 
-  skip("TODO: mtrx() panics with NAs in character columns")
   # in character:
   d_character <- cbind(d, pred_character = sample(letters[1:3], 30, replace = TRUE))
   d_character$pred_character[1] <- NA
