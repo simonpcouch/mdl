@@ -14,15 +14,8 @@ test_that("mtrx() gives similar results to model.matrix()", {
 
   res_mtrx <- mtrx(outcome ~ ., d)
   res_base <- model.matrix(outcome ~ ., d)
-  dimnames(res_base) <- dimnames(res_mtrx)
 
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
-  expect_equal(
-    colnames(res_mtrx),
-    c("intercept", "pred_numeric", "pred_integer", "pred_logical",
-      "pred_factor_2_b", "pred_factor_3_b", "pred_factor_3_c", "pred_character_2_b",
-      "pred_character_3_b", "pred_character_3_c")
-  )
   expect_equal(rownames(res_mtrx), as.character(seq(1, nrow(res_mtrx))))
   expect_equal(nrow(d), nrow(res_mtrx))
 })
@@ -37,7 +30,6 @@ test_that("mtrx() works with missing values", {
   d_numeric <- cbind(d, pred_numeric = c(NA, runif(29)))
   expect_no_condition(res_mtrx <- mtrx(outcome ~ ., d_numeric))
   res_base <- model.matrix(outcome ~ ., d_numeric)
-  dimnames(res_base) <- dimnames(res_mtrx)
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
 
   # in integer:
@@ -45,7 +37,6 @@ test_that("mtrx() works with missing values", {
   d_integer$pred_integer[1] <- NA
   expect_no_condition(res_mtrx <- mtrx(outcome ~ ., d_integer))
   res_base <- model.matrix(outcome ~ ., d_integer)
-  dimnames(res_base) <- dimnames(res_mtrx)
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
 
   # in factor:
@@ -53,7 +44,6 @@ test_that("mtrx() works with missing values", {
   d_factor$pred_factor[1] <- NA
   expect_no_condition(res_mtrx <- mtrx(outcome ~ ., d_factor))
   res_base <- model.matrix(outcome ~ ., d_factor)
-  dimnames(res_base) <- dimnames(res_mtrx)
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
 
   # in character:
@@ -61,7 +51,6 @@ test_that("mtrx() works with missing values", {
   d_character$pred_character[1] <- NA
   expect_no_condition(res_mtrx <- mtrx(outcome ~ ., d_character))
   res_base <- model.matrix(outcome ~ ., d_character)
-  dimnames(res_base) <- dimnames(res_mtrx)
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
 
 })

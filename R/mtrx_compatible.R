@@ -1,7 +1,7 @@
-#' Check if `mtrx()` will give analogous results to `model.matrix()`
+#' Check if `mtrx()` will give matching results to `model.matrix()`
 #'
 #' @description
-#' When the following are true, [mtrx()] returns a matrix that is similar to
+#' When the following are true, [mtrx()] returns a matrix that matches
 #' that returned by [model.matrix()] :
 #'
 #' * There are no non-default factor contrasts.
@@ -27,7 +27,7 @@
 #'   matrix to [model.matrix()], and `FALSE` otherwise.
 #'
 #' @details
-#' In this case, "similar" output means that dummy variables will be encoded
+#' In this case, "matching" output means that dummy variables will be encoded
 #' in the same way, missing values will be handled in the same way (returned
 #' as-is), and that [mtrx()] won't error due to the presence of
 #' unsupported column types.

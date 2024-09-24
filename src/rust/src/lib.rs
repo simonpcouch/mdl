@@ -36,7 +36,7 @@ fn model_matrix(data: List) -> Result<Robj> {
 
     // Add intercept column
     processed_columns[0..nrow].fill(1.);
-    column_names.push("intercept".to_string());
+    column_names.push("(Intercept)".to_string());
 
     // Iterate through columns
     let mut current_column = 1; // we passed the intercept
