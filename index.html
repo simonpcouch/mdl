@@ -77,19 +77,16 @@
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span></span>
 <span>  <span class="fu">mdl</span><span class="fu">::</span><span class="fu"><a href="reference/mtrx.html">mtrx</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">mtcars</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;   intercept cyl_6 cyl_8 disp  hp drat    wt  qsec vs am gear carb</span></span>
-<span><span class="co">#&gt; 1         1     1     0  160 110 3.90 2.620 16.46  0  1    4    4</span></span>
-<span><span class="co">#&gt; 2         1     1     0  160 110 3.90 2.875 17.02  0  1    4    4</span></span>
-<span><span class="co">#&gt; 3         1     0     0  108  93 3.85 2.320 18.61  1  1    4    1</span></span>
-<span><span class="co">#&gt; 4         1     1     0  258 110 3.08 3.215 19.44  1  0    3    1</span></span>
-<span><span class="co">#&gt; 5         1     0     1  360 175 3.15 3.440 17.02  0  0    3    2</span></span>
-<span><span class="co">#&gt; 6         1     1     0  225 105 2.76 3.460 20.22  1  0    3    1</span></span></code></pre></div>
+<span><span class="co">#&gt;   (Intercept) cyl6 cyl8 disp  hp drat    wt  qsec vs am gear carb</span></span>
+<span><span class="co">#&gt; 1           1    1    0  160 110 3.90 2.620 16.46  0  1    4    4</span></span>
+<span><span class="co">#&gt; 2           1    1    0  160 110 3.90 2.875 17.02  0  1    4    4</span></span>
+<span><span class="co">#&gt; 3           1    0    0  108  93 3.85 2.320 18.61  1  1    4    1</span></span>
+<span><span class="co">#&gt; 4           1    1    0  258 110 3.08 3.215 19.44  1  0    3    1</span></span>
+<span><span class="co">#&gt; 5           1    0    1  360 175 3.15 3.440 17.02  0  0    3    2</span></span>
+<span><span class="co">#&gt; 6           1    1    0  225 105 2.76 3.460 20.22  1  0    3    1</span></span></code></pre></div>
 <p>Compared to <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, <code><a href="reference/mtrx.html">mdl::mtrx()</a></code> is sort of a glorified <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix()</a></code> data frame method. More specifically:</p>
 <ul>
-<li>Names its intercept <code>intercept</code> rather than <code>(Intercept)</code>.</li>
 <li>Does not accept formulae with inlined functions (like <code>-</code> or <code>*</code>).</li>
-<li>Names dummy variables created from characters and factors as <code>colname_level</code> rather than <code>colnamelevel</code>.</li>
-<li>Names dummy variables create from logicals as <code>colname</code> rather than <code>colnameTRUE</code>.</li>
 <li>Never drops rows (and thus doesn’t accept an <code>na.action</code>).</li>
 <li>Assumes that factors levels are encoded as they’re intended (i.e. <code>drop.unused.levels</code> and <code>xlev</code> are not accepted).</li>
 </ul>
@@ -103,8 +100,8 @@
 <span><span class="co">#&gt; # A tibble: 2 × 6</span></span>
 <span><span class="co">#&gt;   expression                         min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class="co">#&gt;   &lt;bch:expr&gt;                    &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 mdl::mtrx(mpg ~ ., mtcars)      22.6µs   23.9µs    40039.    3.32KB     20.0</span></span>
-<span><span class="co">#&gt; 2 model.matrix(mpg ~ ., mtcars)  267.8µs  274.6µs     3581.  494.24KB     34.0</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 mdl::mtrx(mpg ~ ., mtcars)      23.1µs     26µs    37187.    3.32KB     18.6</span></span>
+<span><span class="co">#&gt; 2 model.matrix(mpg ~ ., mtcars)  270.2µs    293µs     3337.  494.24KB     31.9</span></span></code></pre></div>
 <p>The factor of speedup isn’t so drastic for larger datasets and datasets with more factors, but it is still quite substantial:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vs"</span>, <span class="st">"am"</span>, <span class="st">"gear"</span>, <span class="st">"carb"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -121,8 +118,8 @@
 <span><span class="co">#&gt; # A tibble: 2 × 6</span></span>
 <span><span class="co">#&gt;   expression                             min median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class="co">#&gt;   &lt;bch:expr&gt;                           &lt;bch&gt; &lt;bch:&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.36s  1.36s     0.736  803.01MB    0.736</span></span>
-<span><span class="co">#&gt; 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.02s  2.02s     0.494    1.86GB    1.98</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.43s  1.43s     0.701  803.01MB    0.701</span></span>
+<span><span class="co">#&gt; 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.01s  2.01s     0.497    1.86GB    1.99</span></span></code></pre></div>
 <p>Check out <a href="https://github.com/simonpcouch/mdl/blob/main/vignettes/articles/plain-r.Rmd" class="external-link">this article</a> for more detailed benchmarks.</p>
 </div>
 </div>
