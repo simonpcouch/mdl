@@ -72,8 +72,8 @@ bench::mark(
 #> # A tibble: 2 × 6
 #>   expression                         min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                    <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 mdl::mtrx(mpg ~ ., mtcars)      26.9µs   28.5µs    33778.    3.32KB     16.9
-#> 2 model.matrix(mpg ~ ., mtcars)  322.3µs  337.3µs     2852.  494.24KB     27.5
+#> 1 mdl::mtrx(mpg ~ ., mtcars)      22.6µs   23.9µs    40039.    3.32KB     20.0
+#> 2 model.matrix(mpg ~ ., mtcars)  267.8µs  274.6µs     3581.  494.24KB     34.0
 ```
 
 The factor of speedup isn’t so drastic for larger datasets and datasets
@@ -94,8 +94,8 @@ bench::mark(
 #> # A tibble: 2 × 6
 #>   expression                             min median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                           <bch> <bch:>     <dbl> <bch:byt>    <dbl>
-#> 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.71s  1.71s     0.585  803.01MB    1.17 
-#> 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.05s  2.05s     0.489    1.86GB    0.977
+#> 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.36s  1.36s     0.736  803.01MB    0.736
+#> 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.02s  2.02s     0.494    1.86GB    1.98
 ```
 
 Check out [this
