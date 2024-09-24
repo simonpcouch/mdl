@@ -14,7 +14,9 @@ URL: https://github.com/simonpcouch/mdl, https://simonpcouch.github.io/mdl/
 BugReports: https://github.com/simonpcouch/mdl/issues
 Imports: 
     cli,
-    rlang
+    rlang,
+    vctrs,
+    withr
 Suggests: 
     testthat (>= 3.0.0)
 Config/rextendr/version: 0.3.1.9000
