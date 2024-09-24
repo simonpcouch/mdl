@@ -22,10 +22,7 @@ like \code{model.matrix()}.
 
 Compared to \code{model.matrix()}, \code{mdl::mtrx()}:
 \itemize{
-\item Names its intercept \code{intercept} rather than \code{(Intercept)}.
 \item Does not accept formulae with inlined functions (like \code{-} or \code{*}).
-\item Names dummy variables created from characters and factors as \code{colname_level} rather than \code{colnamelevel}.
-\item Names dummy variables create from logicals as \code{colname} rather than \code{colnameTRUE}.
 \item Never drops rows (and thus doesn't accept an \code{na.action}).
 \item Assumes that factors levels are encoded as they're intended (i.e. \code{drop.unused.levels} and \code{xlev} are not accepted).
 }

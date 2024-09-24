@@ -2,7 +2,7 @@
 % Please edit documentation in R/mtrx_compatible.R
 \name{mtrx_compatible}
 \alias{mtrx_compatible}
-\title{Check if \code{mtrx()} will give analogous results to \code{model.matrix()}}
+\title{Check if \code{mtrx()} will give matching results to \code{model.matrix()}}
 \usage{
 mtrx_compatible(data, na_action = getOption("na.action"))
 }
@@ -17,7 +17,7 @@ A logical value. Returns TRUE if \code{\link[=mtrx]{mtrx()}} will return a simil
 matrix to \code{\link[=model.matrix]{model.matrix()}}, and \code{FALSE} otherwise.
 }
 \description{
-When the following are true, \code{\link[=mtrx]{mtrx()}} returns a matrix that is similar to
+When the following are true, \code{\link[=mtrx]{mtrx()}} returns a matrix that matches
 that returned by \code{\link[=model.matrix]{model.matrix()}} :
 \itemize{
 \item There are no non-default factor contrasts.
@@ -36,7 +36,7 @@ write:
 }\if{html}{\out{</div>}}
 }
 \details{
-In this case, "similar" output means that dummy variables will be encoded
+In this case, "matching" output means that dummy variables will be encoded
 in the same way, missing values will be handled in the same way (returned
 as-is), and that \code{\link[=mtrx]{mtrx()}} won't error due to the presence of
 unsupported column types.

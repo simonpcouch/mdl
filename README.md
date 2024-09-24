@@ -39,24 +39,19 @@ mtcars$cyl <- as.factor(mtcars$cyl)
 head(
   mdl::mtrx(mpg ~ ., mtcars)
 )
-#>   intercept cyl_6 cyl_8 disp  hp drat    wt  qsec vs am gear carb
-#> 1         1     1     0  160 110 3.90 2.620 16.46  0  1    4    4
-#> 2         1     1     0  160 110 3.90 2.875 17.02  0  1    4    4
-#> 3         1     0     0  108  93 3.85 2.320 18.61  1  1    4    1
-#> 4         1     1     0  258 110 3.08 3.215 19.44  1  0    3    1
-#> 5         1     0     1  360 175 3.15 3.440 17.02  0  0    3    2
-#> 6         1     1     0  225 105 2.76 3.460 20.22  1  0    3    1
+#>   (Intercept) cyl6 cyl8 disp  hp drat    wt  qsec vs am gear carb
+#> 1           1    1    0  160 110 3.90 2.620 16.46  0  1    4    4
+#> 2           1    1    0  160 110 3.90 2.875 17.02  0  1    4    4
+#> 3           1    0    0  108  93 3.85 2.320 18.61  1  1    4    1
+#> 4           1    1    0  258 110 3.08 3.215 19.44  1  0    3    1
+#> 5           1    0    1  360 175 3.15 3.440 17.02  0  0    3    2
+#> 6           1    1    0  225 105 2.76 3.460 20.22  1  0    3    1
 ```
 
 Compared to `model.matrix()`, `mdl::mtrx()` is sort of a glorified
 `as.matrix()` data frame method. More specifically:
 
-- Names its intercept `intercept` rather than `(Intercept)`.
 - Does not accept formulae with inlined functions (like `-` or `*`).
-- Names dummy variables created from characters and factors as
-  `colname_level` rather than `colnamelevel`.
-- Names dummy variables create from logicals as `colname` rather than
-  `colnameTRUE`.
 - Never drops rows (and thus doesn’t accept an `na.action`).
 - Assumes that factors levels are encoded as they’re intended
   (i.e. `drop.unused.levels` and `xlev` are not accepted).
@@ -72,8 +67,8 @@ bench::mark(
 #> # A tibble: 2 × 6
 #>   expression                         min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                    <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 mdl::mtrx(mpg ~ ., mtcars)      22.6µs   23.9µs    40039.    3.32KB     20.0
-#> 2 model.matrix(mpg ~ ., mtcars)  267.8µs  274.6µs     3581.  494.24KB     34.0
+#> 1 mdl::mtrx(mpg ~ ., mtcars)      23.1µs     26µs    37187.    3.32KB     18.6
+#> 2 model.matrix(mpg ~ ., mtcars)  270.2µs    293µs     3337.  494.24KB     31.9
 ```
 
 The factor of speedup isn’t so drastic for larger datasets and datasets
@@ -94,8 +89,8 @@ bench::mark(
 #> # A tibble: 2 × 6
 #>   expression                             min median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                           <bch> <bch:>     <dbl> <bch:byt>    <dbl>
-#> 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.36s  1.36s     0.736  803.01MB    0.736
-#> 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.02s  2.02s     0.494    1.86GB    1.98
+#> 1 mdl::mtrx(mpg ~ ., mtcars[rep(1:32,… 1.43s  1.43s     0.701  803.01MB    0.701
+#> 2 model.matrix(mpg ~ ., mtcars[rep(1:… 2.01s  2.01s     0.497    1.86GB    1.99
 ```
 
 Check out [this

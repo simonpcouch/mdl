@@ -36,7 +36,7 @@ fn model_matrix(data: List) -> Result<Robj> {
 
     // Add intercept column
     processed_columns[0..nrow].fill(1.);
-    column_names.push("intercept".to_string());
+    column_names.push("(Intercept)".to_string());
 
     // Iterate through columns
     let mut current_column = 1; // we passed the intercept
@@ -136,7 +136,7 @@ fn process_factor_column(
             .unwrap()
             .skip(1)
             // this is a different separator than the one used in `model.matrix` in R
-            .map(|level| format!("{}_{}", col_name, level)),
+            .map(|level| format!("{}{}", col_name, level)),
     );
     // remove the first level from all the factors
     let level_indices = column.as_integer_slice().unwrap();
@@ -177,7 +177,7 @@ fn process_logical_column(
     output_column_names: &mut Vec<String>,
     output: &mut [f64],
 ) {
-    output_column_names.push(col_name.to_string());
+    output_column_names.push(format!("{}TRUE", col_name));
     zip(column.as_logical_iter().unwrap(), output.iter_mut()).for_each(
         |(logical_element, output)| {
             *output = logical_element.to_bool() as i32 as f64;
