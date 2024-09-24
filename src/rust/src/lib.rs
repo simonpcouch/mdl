@@ -114,7 +114,11 @@ fn process_integer_column(
     output_column_names.push(col_name.to_string());
     zip(column.as_integer_slice().unwrap().iter(), output.iter_mut()).for_each(
         |(integer_element, output)| {
-            *output = *integer_element as f64;
+            if integer_element.is_na() {
+                *output = f64::na();
+            } else {
+                *output = *integer_element as f64;
+            }
         },
     );
 }
@@ -135,15 +139,24 @@ fn process_factor_column(
             .map(|level| format!("{}{}", col_name, level)),
     );
     // remove the first level from all the factors
-    let level_index = column.as_integer_slice().unwrap().iter().map(|x| *x - 2);
+    let level_indices = column.as_integer_slice().unwrap();
+    let num_levels = column.levels().unwrap().len() - 1;
     output.fill(0.);
-    for (row_id, level_index) in level_index.enumerate() {
+    for (row_id, &level_index) in level_indices.iter().enumerate() {
         // we should have skipped level 1 tags anyways, so we do that here.
-        let col_id: Option<usize> = level_index.try_into().ok();
-        if let Some(col_id) = col_id {
-            let linear_id = row_id + col_id * nrow;
-
-            output[linear_id] = 1.0;
+        if level_index.is_na() {
+            for i in 0..num_levels {
+                let linear_id = row_id + i * nrow;
+                output[linear_id] = f64::na();
+            }
+        } else {
+            let col_id: Option<usize> = (level_index - 2).try_into().ok();
+            if let Some(col_id) = col_id {
+                if col_id < num_levels {
+                    let linear_id = row_id + col_id * nrow;
+                    output[linear_id] = 1.0;
+                }
+            }
         }
     }
 }
