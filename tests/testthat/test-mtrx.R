@@ -48,7 +48,6 @@ test_that("mtrx() works with missing values", {
   dimnames(res_base) <- dimnames(res_mtrx)
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
 
-  skip("TODO: mtrx() panics with NAs in factor columns")
   # in factor:
   d_factor <- cbind(d, pred_factor = factor(sample(letters[1:3], 30, replace = TRUE)))
   d_factor$pred_factor[1] <- NA
