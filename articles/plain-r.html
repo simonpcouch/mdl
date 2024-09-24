@@ -180,9 +180,9 @@ dataset:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 6</span></span></span>
 <span><span class="co">#&gt;   expression        min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;bch:expr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        150µs    160µs     <span style="text-decoration: underline;">6</span>070.      38KB     22.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       193µs    204µs     <span style="text-decoration: underline;">4</span>763.     801KB     18.9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    785µs    831µs     <span style="text-decoration: underline;">1</span>177.     489KB     21.4</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        151µs    161µs     <span style="text-decoration: underline;">6</span>095.      38KB     21.9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       195µs    205µs     <span style="text-decoration: underline;">4</span>729.     801KB     18.9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    765µs    807µs     <span style="text-decoration: underline;">1</span>224.     489KB     21.4</span></span></code></pre></div>
 <p>Not bad, scrappy little feller! Now, on a few more reasonably sized
 datasets:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -214,16 +214,16 @@ largest numbers of rows:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">#&gt;   expression     median mem_alloc</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;bch:expr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        1.84s    3.02GB</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       1.03s    1.84GB</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    2.95s    4.17GB</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        1.88s    3.02GB</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       1.14s    1.84GB</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    2.87s    4.17GB</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timings</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">median</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>In this timing, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code> took 2.9x slower than
-<code><a href="../reference/mtrx.html">mdl::mtrx()</a></code>, and our speedy plain R approach took 1.8x as
+<p>In this timing, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code> took 2.5x slower than
+<code><a href="../reference/mtrx.html">mdl::mtrx()</a></code>, and our speedy plain R approach took 1.6x as
 long.</p>
 </div>
   </main>
