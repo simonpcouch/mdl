@@ -40,7 +40,6 @@ test_that("mtrx() works with missing values", {
   dimnames(res_base) <- dimnames(res_mtrx)
   expect_equal(res_mtrx, res_base, ignore_attr = TRUE)
 
-  skip("TODO: mtrx() sets NA to -2147483648")
   # in integer:
   d_integer <- cbind(d, pred_integer = sample(c(0L, 1L), 30, replace = TRUE))
   d_integer$pred_integer[1] <- NA
