@@ -55,11 +55,10 @@ fn model_matrix(data: List) -> Result<Robj> {
             break;
         };
 
-        let is_factor = column.is_factor();
-        let nlevels = column.levels().unwrap().len() - 1;
         match column.rtype() {
             // Note that factors match this first condition
-            Rtype::Integers if is_factor => {
+            Rtype::Integers if column.is_factor() => {
+                let nlevels = column.levels().unwrap().len() - 1;
                 column_names.extend(
                     column
                         .levels()
