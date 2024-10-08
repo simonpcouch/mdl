@@ -1,6 +1,10 @@
 use extendr_api::prelude::*;
 use std::iter::zip;
 
+#[cfg(feature = "rayon")]
+#[allow(unused_imports)]
+use rayon::prelude::*;
+
 #[extendr]
 fn model_matrix(data: List) -> Result<Robj> {
     let nrow = data.iter().next().map(|(_, col)| col.len()).unwrap_or(0);
@@ -37,7 +41,7 @@ fn model_matrix(data: List) -> Result<Robj> {
     let intercept;
     (intercept, processed_columns) = processed_columns.split_at_mut(nrow);
     // Add intercept column
-    intercept[..].fill(1.);
+    intercept.fill(1.);
     column_names.push("(Intercept)".to_string());
 
     let mut data_iter = columns;
@@ -70,7 +74,7 @@ fn model_matrix(data: List) -> Result<Robj> {
                 (o, processed_columns) = processed_columns.split_at_mut(nlevels * nrow);
 
                 calcs.push(Calculation::FactorColumn {
-                    column,
+                    column: column.into(),
                     nrow,
                     output: o,
                 });
@@ -80,14 +84,20 @@ fn model_matrix(data: List) -> Result<Robj> {
 
                 let o;
                 (o, processed_columns) = processed_columns.split_at_mut(nrow);
-                calcs.push(Calculation::IntegerColumn { column, output: o });
+                calcs.push(Calculation::IntegerColumn {
+                    column: column.into(),
+                    output: o,
+                });
             }
             Rtype::Doubles => {
                 column_names.push(col_name.to_string());
 
                 let o;
                 (o, processed_columns) = processed_columns.split_at_mut(nrow);
-                calcs.push(Calculation::DoubleColumn { column, output: o });
+                calcs.push(Calculation::DoubleColumn {
+                    column: column.into(),
+                    output: o,
+                });
             }
             Rtype::Logicals => {
                 column_names.push(format!("{}TRUE", col_name));
@@ -95,7 +105,10 @@ fn model_matrix(data: List) -> Result<Robj> {
                 let o;
                 (o, processed_columns) = processed_columns.split_at_mut(nrow);
 
-                calcs.push(Calculation::LogicalColumn { column, output: o });
+                calcs.push(Calculation::LogicalColumn {
+                    column: column.into(),
+                    output: o,
+                });
             }
             _ => {
                 return Err(Error::Other(format!(
@@ -104,16 +117,14 @@ fn model_matrix(data: List) -> Result<Robj> {
                 )))
             }
         };
-
-        if is_factor {
-            current_column += nlevels;
-        } else {
-            current_column += 1;
-        }
     }
 
-    // TODO: Do this in parrallel with Rayon
-    calcs.into_iter().for_each(|x| x.calculate());
+    // TODO: Do this in parallel with Rayon
+    if cfg!(feature = "rayon") {
+        calcs.into_par_iter().for_each(|x| x.calculate());
+    } else {
+        calcs.into_iter().for_each(|x| x.calculate());
+    }
 
     let mut robj: Robj = processed_columns_matrix.into();
 
@@ -146,6 +157,8 @@ enum Calculation<'b> {
         output: &'b mut [f64],
     },
 }
+unsafe impl<'a> Send for Calculation<'a> {}
+unsafe impl<'a> Sync for Calculation<'a> {}
 
 impl<'a> Calculation<'a> {
     fn calculate(self) {
