@@ -120,6 +120,7 @@ fn model_matrix(data: List) -> Result<Robj> {
 
     // TODO: Do this in parallel with Rayon
     if cfg!(feature = "rayon") {
+        #[cfg(feature = "rayon")]
         calcs.into_par_iter().for_each(|x| x.calculate());
     } else {
         calcs.into_iter().for_each(|x| x.calculate());

@@ -16,4 +16,4 @@ extendr-api = { version = "0.7.1" }
 rayon = {version = "1.10.0", optional = true}
 
 [features]
-default = ["rayon"]
+default = []
