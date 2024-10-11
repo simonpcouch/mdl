@@ -155,7 +155,9 @@ enum Calculation<'b> {
         output: &'b mut [f64],
     },
 }
+#[cfg(feature = "rayon")]
 unsafe impl<'a> Send for Calculation<'a> {}
+#[cfg(feature = "rayon")]
 unsafe impl<'a> Sync for Calculation<'a> {}
 
 impl<'a> Calculation<'a> {
