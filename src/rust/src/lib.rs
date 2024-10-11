@@ -64,8 +64,6 @@ fn model_matrix(data: List) -> Result<Robj> {
                         .levels()
                         .unwrap()
                         .skip(1)
-                        // this is a different separator than the one
-                        // used in `model.matrix` in R
                         .map(|level| format!("{}{}", col_name, level)),
                 );
 
