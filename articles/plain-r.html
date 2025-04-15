@@ -8,8 +8,8 @@
 <title>Benchmarking against a plain R approach • mdl</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Benchmarking against a plain R approach">
 </head>
 <body>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mdl</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -171,7 +171,7 @@ dataset:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">create_data_frame</span><span class="op">(</span><span class="fl">30</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/mark.html" class="external-link">mark</a></span><span class="op">(</span></span>
+<span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">mark</a></span><span class="op">(</span></span>
 <span>  mdl_mtrx <span class="op">=</span> <span class="fu">mdl_mtrx</span><span class="op">(</span><span class="va">outcome</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">d</span><span class="op">)</span>,</span>
 <span>  `mdl::mtrx` <span class="op">=</span> <span class="fu">mdl</span><span class="fu">::</span><span class="fu"><a href="../reference/mtrx.html">mtrx</a></span><span class="op">(</span><span class="va">outcome</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">d</span><span class="op">)</span>,</span>
 <span>  model.matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">outcome</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">d</span><span class="op">)</span>,</span>
@@ -180,18 +180,18 @@ dataset:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 6</span></span></span>
 <span><span class="co">#&gt;   expression        min   median `itr/sec` mem_alloc `gc/sec`</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;bch:expr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        149µs    159µs     <span style="text-decoration: underline;">6</span>159.      38KB     21.6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       192µs    202µs     <span style="text-decoration: underline;">4</span>818.     801KB     18.8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    741µs    777µs     <span style="text-decoration: underline;">1</span>277.     489KB     23.4</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        156µs    167µs     <span style="text-decoration: underline;">5</span>888.      38KB     21.9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       198µs    211µs     <span style="text-decoration: underline;">4</span>604.     801KB     19.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    780µs    831µs     <span style="text-decoration: underline;">1</span>198.     488KB     23.8</span></span></code></pre></div>
 <p>Not bad, scrappy little feller! Now, on a few more reasonably sized
 datasets:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> </span>
-<span>  <span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/press.html" class="external-link">press</a></span><span class="op">(</span></span>
+<span>  <span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://bench.r-lib.org/reference/press.html" class="external-link">press</a></span><span class="op">(</span></span>
 <span>    n_rows <span class="op">=</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span>, </span>
 <span>    <span class="op">{</span></span>
 <span>      <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">create_data_frame</span><span class="op">(</span><span class="va">n_rows</span><span class="op">)</span></span>
-<span>      <span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/mark.html" class="external-link">mark</a></span><span class="op">(</span></span>
+<span>      <span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">mark</a></span><span class="op">(</span></span>
 <span>        mdl_mtrx <span class="op">=</span> <span class="fu">mdl_mtrx</span><span class="op">(</span><span class="va">outcome</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">d</span><span class="op">)</span>,</span>
 <span>        `mdl::mtrx` <span class="op">=</span> <span class="fu">mdl</span><span class="fu">::</span><span class="fu"><a href="../reference/mtrx.html">mtrx</a></span><span class="op">(</span><span class="va">outcome</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">d</span><span class="op">)</span>,</span>
 <span>        model.matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="va">outcome</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">d</span><span class="op">)</span>,</span>
@@ -214,15 +214,15 @@ largest numbers of rows:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">#&gt;   expression     median mem_alloc</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;bch:expr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;bch:tm&gt;</span> <span style="color: #949494; font-style: italic;">&lt;bch:byt&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        1.76s    3.02GB</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       1.02s    1.84GB</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    2.29s    4.17GB</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mdl_mtrx        1.82s    3.02GB</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mdl::mtrx       1.06s    1.84GB</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> model.matrix    1.77s    4.06GB</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timings</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">median</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>In this timing, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code> took 2.2x slower than
+<p>In this timing, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code> took 1.7x slower than
 <code><a href="../reference/mtrx.html">mdl::mtrx()</a></code>, and our speedy plain R approach took 1.7x as
 long.</p>
 </div>
