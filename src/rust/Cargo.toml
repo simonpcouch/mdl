@@ -3,16 +3,17 @@ name = 'mdl'
 publish = false
 version = '0.1.0'
 edition = '2021'
+rust-version = "1.65"
 
 [lib]
 crate-type = ['staticlib']
 name = 'mdl'
 
 [dev-dependencies]
-extendr-engine = { version = "0.7.1" }
+extendr-engine = { version = "0.8.0" }
 
 [dependencies]
-extendr-api = { version = "0.7.1" }
+extendr-api = { version = "0.8.0" }
 rayon = {version = "1.10.0", optional = true}
 
 [features]

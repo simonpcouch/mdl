@@ -1,6 +1,6 @@
 Package: mdl
 Title: Modern model matrices
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: c(
     person("Simon", "Couch", , "simon.couch@posit.co", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5676-5107")),
@@ -19,10 +19,12 @@ Imports:
     withr
 Suggests: 
     testthat (>= 3.0.0)
-Config/rextendr/version: 0.3.1.9000
+Config/rextendr/version: 0.3.1.9001
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 SystemRequirements: Cargo (Rust's package manager), rustc
 Config/Needs/website: r-lib/bench#144, dplyr, ggplot2, rmarkdown, tidyverse/tidytemplate
+Depends: 
+    R (>= 4.2)
